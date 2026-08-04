@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="80%">
+      <stop offset="0%" stop-color="#2a1f57"/>
+      <stop offset="55%" stop-color="#141122"/>
+      <stop offset="100%" stop-color="#08070f"/>
+    </radialGradient>
+    <radialGradient id="dial" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#443891"/>
+      <stop offset="100%" stop-color="#16112e"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="112.64" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="174.08" fill="url(#dial)" stroke="#9d8fff" stroke-opacity="0.35" stroke-width="3.5"/>
+  <line x1="147.5" y1="318.7" x2="126.3" y2="330.9" stroke="#9d8fff" stroke-width="6.6" stroke-linecap="round" opacity="0.9"/>
+  <line x1="132.6" y1="277.8" x2="108.6" y2="282.0" stroke="#9d8fff" stroke-width="6.6" stroke-linecap="round" opacity="0.9"/>
+  <line x1="132.6" y1="234.2" x2="108.6" y2="230.0" stroke="#9d8fff" stroke-width="6.6" stroke-linecap="round" opacity="0.9"/>
+  <line x1="147.5" y1="193.3" x2="126.3" y2="181.1" stroke="#9d8fff" stroke-width="6.6" stroke-linecap="round" opacity="0.9"/>
+  <line x1="175.4" y1="160.0" x2="159.8" y2="141.3" stroke="#9d8fff" stroke-width="6.6" stroke-linecap="round" opacity="0.9"/>
+  <line x1="213.1" y1="138.2" x2="204.8" y2="115.3" stroke="#9d8fff" stroke-width="6.6" stroke-linecap="round" opacity="0.9"/>
+  <line x1="256.0" y1="130.7" x2="256.0" y2="106.3" stroke="#9d8fff" stroke-width="6.6" stroke-linecap="round" opacity="0.9"/>
+  <line x1="298.9" y1="138.2" x2="307.2" y2="115.3" stroke="#9d8fff" stroke-width="6.6" stroke-linecap="round" opacity="0.9"/>
+  <line x1="336.6" y1="160.0" x2="352.2" y2="141.3" stroke="#9d8fff" stroke-width="6.6" stroke-linecap="round" opacity="0.9"/>
+  <line x1="364.5" y1="193.3" x2="385.7" y2="181.1" stroke="#9d8fff" stroke-width="6.6" stroke-linecap="round" opacity="0.9"/>
+  <line x1="372.6" y1="235.4" x2="403.4" y2="230.0" stroke="#ff6a4a" stroke-width="8.7" stroke-linecap="round" opacity="1"/>
+  <line x1="372.6" y1="276.6" x2="403.4" y2="282.0" stroke="#ff6a4a" stroke-width="8.7" stroke-linecap="round" opacity="1"/>
+  <line x1="358.5" y1="315.2" x2="385.7" y2="330.9" stroke="#ff6a4a" stroke-width="8.7" stroke-linecap="round" opacity="1"/>
+  <line x1="256" y1="256" x2="120.2" y2="211.9" stroke="#ffd79a" stroke-width="10.4" stroke-linecap="round"/>
+  <circle cx="256" cy="256" r="17.4" fill="#fbeed6"/>
+</svg>

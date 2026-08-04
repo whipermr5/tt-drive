@@ -1,0 +1,13 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+.vite
+npm-debug.log*
+
+# Personal data — deliberately kept OUT of the repo and the build.
+# `private/` holds the raw fuel log; the generated import file is his real
+# history. Neither is ever committed. See scripts/make-seed.mjs and the README.
+private/
+tai-tong-drive-seed.json
