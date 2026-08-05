@@ -55,6 +55,15 @@ export const shortDate = (iso) =>
     month: "short",
   });
 
+// Like shortDate, but adds the year when the entry isn't from the current year —
+// so scrolling into past years in the history stays unambiguous.
+export const historyDate = (iso) => {
+  const d = new Date(iso + "T00:00:00");
+  const opts = { day: "numeric", month: "short" };
+  if (d.getFullYear() !== new Date().getFullYear()) opts.year = "numeric";
+  return d.toLocaleDateString("en-GB", opts);
+};
+
 export const timeAgo = (ts) => {
   const m = Math.round((Date.now() - ts) / 60000);
   if (m < 1) return "just now";

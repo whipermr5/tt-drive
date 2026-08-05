@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 
 import { makeTheme, ThemeCtx, useTheme, lcdFont, uiFont, DECKS } from "./lib/theme.js";
-import { compute, f1, shortDate, timeAgo } from "./lib/compute.js";
+import { compute, f1, shortDate, historyDate, timeAgo } from "./lib/compute.js";
 import { hasStore, load, save } from "./lib/storage.js";
 
 /* ---------------------------------------------------------------------------
@@ -632,18 +632,27 @@ function FuelPage({ computed, stats, editing, setEditing, entries, saveFuel, del
         <Panel style={{ padding: 0, overflow: "hidden" }}>
           <div style={{ padding: "14px 16px 8px" }}><Label>History</Label></div>
           {rows.map((e, i) => (
-            <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", borderTop: i === 0 ? "none" : `1px solid ${T.line}` }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 15.5, color: T.amber, fontWeight: 800 }}>{shortDate(e.date)}</div>
-                <div style={{ fontSize: 13.5, fontWeight: 600, color: T.muted, fontFamily: lcdFont, marginTop: 3 }}>
-                  {f1(e.litres)} L{e.partial ? " · partial" : e.distance != null ? ` · ${f1(e.distance)} km` : " · baseline"}
+            <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "13px 16px", borderTop: i === 0 ? "none" : `1px solid ${T.line}` }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 15.5, color: T.amber, fontWeight: 800 }}>{historyDate(e.date)}</div>
+                {/* Inputs (litres, trip-meter reading) with the derived distance folded
+                    in beside the odometer — violet marks the calculated value. Stays
+                    on one line at typical phone widths; the distance wraps below only
+                    on very narrow screens rather than colliding with the km/L. */}
+                <div style={{ fontSize: 12.5, fontWeight: 600, color: T.muted, fontFamily: lcdFont, marginTop: 3 }}>
+                  {f1(e.litres)} L <span style={{ color: T.mutedDim }}>·</span> {e.reading}{" "}
+                  <span style={{ whiteSpace: "nowrap" }}>{e.partial
+                    ? <span style={{ color: T.mutedDim }}>(partial)</span>
+                    : e.distance != null
+                      ? <span style={{ color: T.violet }}>(+{Math.round(e.distance)} km)</span>
+                      : <span style={{ color: T.mutedDim }}>(baseline)</span>}</span>
                 </div>
               </div>
-              <div style={{ fontFamily: lcdFont, fontSize: 21, fontWeight: 700, color: e.kmpl ? T.amberHot : T.mutedDim, minWidth: 66, textAlign: "right" }}>
-                {e.kmpl ? f1(e.kmpl) : "—"}{e.kmpl && <span style={{ fontSize: 11, fontWeight: 700, color: T.muted }}> km/L</span>}
+              <div style={{ fontFamily: lcdFont, fontSize: 23, fontWeight: 700, color: e.kmpl ? T.amberHot : T.mutedDim, minWidth: 58, textAlign: "right", lineHeight: 1 }}>
+                {e.kmpl ? f1(e.kmpl) : "—"}{e.kmpl && <span style={{ fontSize: 12, fontWeight: 700, color: T.muted }}> km/L</span>}
               </div>
-              <button onClick={() => setEditing(e.id)} style={{ background: "none", border: "none", color: T.muted, padding: 5 }}><Pencil size={18} /></button>
-              <button onClick={() => delFuel(e.id)} style={{ background: "none", border: "none", color: T.muted, padding: 5 }}><Trash2 size={18} /></button>
+              <button onClick={() => setEditing(e.id)} style={{ background: "none", border: "none", color: T.muted, padding: 4 }}><Pencil size={18} /></button>
+              <button onClick={() => delFuel(e.id)} style={{ background: "none", border: "none", color: T.muted, padding: 4 }}><Trash2 size={18} /></button>
             </div>
           ))}
         </Panel>
