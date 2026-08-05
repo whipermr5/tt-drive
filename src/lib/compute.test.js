@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { compute } from "./compute.js";
+import { buildSample } from "./sample.js";
 
 // The real fuel log is kept out of the repo (see .gitignore / README). When
 // it's been generated locally (`npm run seed`) these checks run against it;
@@ -118,5 +119,37 @@ describe.skipIf(!hasSeed)("compute() — real seed data sanity", () => {
 
   it("partial fills never carry their own km/L", () => {
     expect(rows.filter((r) => r.partial).every((r) => r.kmpl == null)).toBe(true);
+  });
+});
+
+describe("buildSample() — demo data", () => {
+  const s = buildSample();
+  const rows = compute(s.fuel);
+  const measured = rows.filter((r) => r.kmpl != null);
+
+  it("returns a plausible spread of fill-ups + parking", () => {
+    expect(s.fuel.length).toBeGreaterThanOrEqual(20);
+    expect(s.parking).toBeTruthy();
+    expect(s.parking.deck).toBeTruthy();
+    expect(s.hist.length).toBe(3);
+  });
+
+  it("is deterministic (same seed each build)", () => {
+    const a = buildSample().fuel.map((e) => `${e.litres}|${e.reading}`);
+    const b = buildSample().fuel.map((e) => `${e.litres}|${e.reading}`);
+    expect(a).toEqual(b);
+  });
+
+  it("looks realistic once computed — avg km/L in the app's band", () => {
+    const avg = measured.reduce((a, r) => a + r.kmpl, 0) / measured.length;
+    expect(avg).toBeGreaterThan(7.5);
+    expect(avg).toBeLessThan(10);
+    expect(measured.length).toBeGreaterThan(10); // enough points for a trend
+  });
+
+  it("exercises the tricky cases: ≥1 baseline (rollover), ≥1 partial, no negatives", () => {
+    expect(rows.some((r) => r.full && r.kmpl == null)).toBe(true); // a baseline
+    expect(rows.some((r) => r.partial)).toBe(true);
+    expect(rows.every((r) => r.distance == null || r.distance >= 0)).toBe(true);
   });
 });

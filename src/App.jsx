@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Fuel, MapPin, TrendingUp, Plus, Trash2, X, Settings, Check, Pencil,
-  Sun, Moon, Monitor, ChevronLeft, ChevronRight, Calendar, Download, Upload,
+  Sun, Moon, Monitor, ChevronLeft, ChevronRight, Calendar, Download, Upload, Sparkles,
 } from "lucide-react";
 
 import { makeTheme, ThemeCtx, useTheme, lcdFont, uiFont, DECKS } from "./lib/theme.js";
 import { compute, f1, shortDate, historyDate, timeAgo } from "./lib/compute.js";
 import { hasStore, load, save } from "./lib/storage.js";
+import { buildSample } from "./lib/sample.js";
 
 /* ---------------------------------------------------------------------------
    TAI TONG · DRIVE
@@ -270,6 +271,7 @@ function FuelForm({ initial, entries, onSave, onCancel, onDelete }) {
 export default function App() {
   const [tab, setTab] = useState("home");
   const [loaded, setLoaded] = useState(false);
+  const [visited, setVisited] = useState(false);
   const [fuel, setFuel] = useState([]);
   const [parking, setParking] = useState(null);
   const [hist, setHist] = useState([]);
@@ -312,16 +314,27 @@ export default function App() {
     if (meta) meta.setAttribute("content", T.mode === "dark" ? "#08070f" : "#f1eff9");
   }, [T.mode]);
 
-  // Initial load — synchronous localStorage. A fresh install starts empty;
-  // an existing history is brought in via Settings -> Restore (import).
+  // Initial load — synchronous localStorage. A brand-new visitor (never stored
+  // anything) is auto-seeded with demo data so the app can be shown off on any
+  // device; existing/imported data is never overwritten. Once erased, the
+  // tt:visited flag stops it from re-seeding — the home "Load sample data"
+  // button brings it back on demand.
   useEffect(() => {
     const store = hasStore();
-    setFuel(store ? load("tt:fuel", []) : []);
-    setParking(store ? load("tt:parking", null) : null);
-    setHist(store ? load("tt:hist", []) : []);
+    const been = store ? load("tt:visited", false) : false;
+    let f = store ? load("tt:fuel", null) : null;
+    let p = store ? load("tt:parking", null) : null;
+    let h = store ? load("tt:hist", null) : null;
     const s = store ? load("tt:settings", null) : null;
+    if (!been && f === null) {
+      const sample = buildSample();
+      f = sample.fuel; p = sample.parking; h = sample.hist;
+    }
+    setFuel(f || []); setParking(p || null); setHist(h || []);
     setSettings(s && s.theme ? s : { theme: "dark" });
+    setVisited(true);
     setLoaded(true);
+    if (store && !been) save("tt:visited", true);
   }, []);
 
   useEffect(() => { if (loaded) save("tt:fuel", fuel); }, [fuel, loaded]);
@@ -362,6 +375,14 @@ export default function App() {
     scrollWindowTop();
   };
   const delFuel = (id) => { setFuel((p) => p.filter((e) => e.id !== id)); showToast("Fill-up deleted"); };
+
+  // Load the demo dataset on demand (shown on Home once the app has been erased).
+  const loadSample = () => {
+    const s = buildSample();
+    setFuel(s.fuel); setParking(s.parking); setHist(s.hist);
+    showToast("Sample data loaded");
+    scrollWindowTop();
+  };
 
   // ---- data export / import (protects his 10-year history) ------------------
   const exportData = () => {
@@ -450,7 +471,9 @@ export default function App() {
           {tab === "home" && (
             <Home parking={parking} latest={latest} prev={prev} trend={withEff}
               onGoFuel={() => setTab("fuel")} onGoPark={() => setTab("parking")}
-              onLogFuel={() => { setEditing("new"); setTab("fuel"); }} />
+              onLogFuel={() => { setEditing("new"); setTab("fuel"); }}
+              showSample={visited && fuel.length === 0 && parking == null && hist.length === 0}
+              onLoadSample={loadSample} />
           )}
           {tab === "fuel" && (
             <FuelPage computed={computed} stats={stats} editing={editing} setEditing={setEditing}
@@ -497,7 +520,7 @@ export default function App() {
 }
 
 /* ---------------- HOME ----------------------------------------------------- */
-function Home({ parking, latest, prev, trend, onGoFuel, onGoPark, onLogFuel }) {
+function Home({ parking, latest, prev, trend, onGoFuel, onGoPark, onLogFuel, showSample, onLoadSample }) {
   const T = useTheme();
   const delta = latest && prev ? latest.kmpl - prev.kmpl : null;
   return (
@@ -546,6 +569,13 @@ function Home({ parking, latest, prev, trend, onGoFuel, onGoPark, onLogFuel }) {
         <QuickBtn icon={Plus} label="Log fuel" onClick={onLogFuel} />
         <QuickBtn icon={MapPin} label="Set parking" onClick={onGoPark} />
       </div>
+
+      {showSample && (
+        <button onClick={onLoadSample}
+          style={{ width: "100%", padding: "15px 12px", borderRadius: 16, border: `1.5px dashed ${T.line}`, background: T.selVioletBg, color: T.violet, display: "flex", alignItems: "center", justifyContent: "center", gap: 9, fontSize: 15, fontWeight: 800, fontFamily: uiFont }}>
+          <Sparkles size={20} strokeWidth={2.4} /> Load sample data
+        </button>
+      )}
     </div>
   );
 }

@@ -6,9 +6,15 @@ high contrast, few taps — built to be easy to read and hard to get lost in.
 
 It's a single-user progressive web app: all data lives in your phone's browser
 (`localStorage`), no account and no server. **No personal data is baked into the
-app or the repo** — a fresh install starts empty, and an existing history is
-loaded in one step via **Settings → Restore** (see below). That keeps the public
-code and the deployed site free of anyone's fuel log.
+app or the repo** — that keeps the public code and the deployed site free of
+anyone's real fuel log.
+
+- A brand-new visit is auto-seeded with **fabricated demo data** (`src/lib/sample.js`)
+  so the app can be shown off on any device.
+- Load a real history in one step via **Settings → Restore** (see below).
+- **Settings → Erase all my data** clears everything and, once erased, it stays
+  erased across reloads. To bring the demo back, use the **Load sample data**
+  button that then appears on the home screen.
 
 ## Running it
 
