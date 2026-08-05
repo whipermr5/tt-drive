@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Fuel, MapPin, TrendingUp, Plus, Trash2, X, Settings, Check, Pencil,
-  Sun, Moon, Monitor, ChevronLeft, ChevronRight, ChevronDown, Download, Upload,
+  Sun, Moon, Monitor, ChevronLeft, ChevronRight, Calendar, Download, Upload,
 } from "lucide-react";
 
 import { makeTheme, ThemeCtx, useTheme, lcdFont, uiFont, DECKS } from "./lib/theme.js";
@@ -179,11 +179,11 @@ function FuelForm({ initial, entries, onSave, onCancel }) {
           <Label>Date</Label>
           <div style={{ position: "relative", marginTop: 7 }}>
             <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ ...field, paddingRight: 44 }} />
-            {/* Our own chevron — the native one (Android Chrome especially) can't
-                be repositioned, so we hide it in CSS and draw this instead. On
-                Firefox (which keeps its own calendar button) this is hidden via
-                the .tt-date-chevron rule to avoid a duplicate. */}
-            <ChevronDown className="tt-date-chevron" size={20} color={T.muted} strokeWidth={2.4}
+            {/* Our own calendar glyph — the native one (Android Chrome especially)
+                can't be repositioned, so we hide it in CSS and draw this instead.
+                On Firefox (which keeps its own calendar button) this is hidden via
+                the .tt-date-icon rule to avoid a duplicate. */}
+            <Calendar className="tt-date-icon" size={19} color={T.muted} strokeWidth={2}
               style={{ position: "absolute", right: 15, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
           </div>
         </div>

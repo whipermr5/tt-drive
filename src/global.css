@@ -52,7 +52,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
    chevron would double up. Hide ours there and restore native right padding, so
    Firefox shows just its (already well-spaced) native button. */
 @supports (-moz-appearance: none) {
-  .tt-date-chevron {
+  .tt-date-icon {
     display: none;
   }
   input[type="date"] {
