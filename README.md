@@ -51,10 +51,12 @@ To prepare the import file:
 
 1. Put the raw log at `private/pa-log.txt` — one line per fill-up,
    `date|litres|trip-reading[|P]` (a trailing `P` marks a partial fill). This
-   folder is gitignored and never committed.
+   folder is gitignored and never committed. Optionally add `private/parking.json`
+   (`{ current: {deck,note,ts}, history: [...] }`) to seed a starting parking spot
+   and recent-spots list — the history is capped at 6 to match the app.
 2. Run `npm run seed`. It writes `tai-tong-drive-seed.json` (also gitignored) — the
    same JSON shape the app's own **Back up** produces — and prints a sanity summary
-   (count · avg · best · worst).
+   (count · avg · best · worst · parking).
 3. Send that file to the phone privately (AirDrop / WhatsApp / email to yourself),
    open the app, and go **Settings → Restore** to load it. Done once, forever.
 

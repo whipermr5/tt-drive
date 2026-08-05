@@ -15,6 +15,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const RAW = join(root, "private", "pa-log.txt");
+const PARKING = join(root, "private", "parking.json");
 const OUT = join(root, "tai-tong-drive-seed.json");
 
 if (!existsSync(RAW)) {
@@ -30,12 +31,24 @@ const fuel = readFileSync(RAW, "utf8").trim().split("\n").map((ln, i) => {
   return e;
 });
 
+// Optional parking history (from his calendar). Shape:
+//   { current: {deck,note,ts}, history: [{deck,note,ts}] }
+// The app keeps 1 current spot + a recent-spots list capped at 6, so mirror
+// that cap here. Absent file -> no parking data.
+let parking = null;
+let hist = [];
+if (existsSync(PARKING)) {
+  const p = JSON.parse(readFileSync(PARKING, "utf8"));
+  parking = p.current ?? null;
+  hist = Array.isArray(p.history) ? p.history.slice(0, 6) : [];
+}
+
 const payload = {
   version: 1,
   exportedAt: new Date().toISOString(),
   fuel,
-  parking: null,
-  hist: [],
+  parking,
+  hist,
   settings: { theme: "dark" },
 };
 
@@ -57,3 +70,4 @@ for (const e of fuel) {
 const avg = kmpls.reduce((a, b) => a + b, 0) / kmpls.length;
 console.log(`Wrote ${OUT}`);
 console.log(`  ${fuel.length} fill-ups · avg ${avg.toFixed(1)} km/L · best ${Math.max(...kmpls).toFixed(1)} · worst ${Math.min(...kmpls).toFixed(1)}`);
+console.log(`  parking: ${parking ? `at ${parking.deck}` : "none"} · ${hist.length} recent spot(s)`);
