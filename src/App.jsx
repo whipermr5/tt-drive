@@ -26,6 +26,10 @@ const scrollWindowTop = () => {
   catch { try { window.scrollTo(0, 0); } catch {} }
 };
 
+// "1 fill-up", "3 fill-ups" — shared by the backup/restore toasts.
+const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
+const spotCount = (parking, hist) => (parking ? 1 : 0) + (hist ? hist.length : 0);
+
 /* ---------------- mini tachometer logo (echoes his gauge) ------------------ */
 function MiniGauge({ size = 46 }) {
   const cx = size / 2, cy = size / 2, r = size / 2 - 4;
@@ -397,7 +401,8 @@ export default function App() {
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      showToast(`Saved a backup of ${fuel.length} fill-ups`);
+      const spots = spotCount(parking, hist);
+      showToast(`Saved a backup of ${plural(fuel.length, "fill-up")}` + (spots ? ` · ${plural(spots, "parking spot")}` : ""));
     } catch {
       showToast("Couldn't export on this device");
     }
@@ -415,8 +420,7 @@ export default function App() {
     if (obj.settings && obj.settings.theme) setSettings(obj.settings);
     setShowSettings(false);
     setTab("home");
-    const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
-    const spots = (obj.parking ? 1 : 0) + histArr.length;
+    const spots = spotCount(obj.parking, histArr);
     showToast(
       `Restored ${plural(obj.fuel.length, "fill-up")}` +
       (spots ? ` · ${plural(spots, "parking spot")}` : "")
