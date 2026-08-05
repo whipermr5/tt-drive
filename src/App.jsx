@@ -177,7 +177,7 @@ function FuelForm({ initial, entries, onSave, onCancel }) {
       <div style={{ display: "grid", gap: 14 }}>
         <div>
           <Label>Date</Label>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ ...field, marginTop: 7 }} />
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ ...field, marginTop: 7, paddingRight: 22 }} />
         </div>
         <div>
           <Label>Litres pumped</Label>
