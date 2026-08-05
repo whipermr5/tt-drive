@@ -28,12 +28,11 @@ button {
   font-family: inherit;
 }
 
-/* Date field: Android Chrome draws its own native dropdown arrow flush to the
-   right edge that padding / ::-webkit-calendar-picker-indicator can't move. So
-   strip the native appearance and render our own chevron (see FuelForm) for a
-   consistent, well-spaced look across Chrome, Firefox and iOS. The native
-   picker indicator is made invisible but stretched over the whole field, so a
-   tap/click anywhere still opens the date picker. */
+/* Date field. On Chrome/WebKit (incl. Android Chrome) the native dropdown arrow
+   sits flush to the edge and can't be repositioned, so strip the native
+   appearance and render our own chevron (see FuelForm). The native picker
+   indicator is made invisible but stretched over the whole field, so a tap/click
+   anywhere still opens the date picker. */
 input[type="date"] {
   -webkit-appearance: none;
   appearance: none;
@@ -48,6 +47,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   padding: 0;
   opacity: 0;
   cursor: pointer;
+}
+/* Firefox renders its own calendar button that CSS can't remove, so our custom
+   chevron would double up. Hide ours there and restore native right padding, so
+   Firefox shows just its (already well-spaced) native button. */
+@supports (-moz-appearance: none) {
+  .tt-date-chevron {
+    display: none;
+  }
+  input[type="date"] {
+    padding-right: 14px !important;
+  }
 }
 
 /* Honour the notch / home-indicator safe areas on installed iOS PWAs. */
