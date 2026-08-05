@@ -28,6 +28,15 @@ button {
   font-family: inherit;
 }
 
+/* The native date input's calendar / dropdown (▾) indicator sits flush against
+   the right edge on some engines (notably Android Chrome) regardless of the
+   input's padding. Give the indicator its own margin so it always has breathing
+   room from the edge. */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
 /* Honour the notch / home-indicator safe areas on installed iOS PWAs. */
 @supports (padding: env(safe-area-inset-bottom)) {
   body {
