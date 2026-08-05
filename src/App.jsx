@@ -408,7 +408,7 @@ export default function App() {
             <div style={{ fontSize: 23, fontWeight: 800, color: T.amber, letterSpacing: 0.3 }}>Tai Tong</div>
           </div>
           <button onClick={() => setShowSettings(true)}
-            style={{ background: T.panel, border: `1.5px solid ${T.line}`, borderRadius: 12, padding: 10, color: T.muted }}>
+            style={{ background: T.panel, border: `1.5px solid ${T.line}`, borderRadius: 12, padding: 10, color: T.muted, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Settings size={20} />
           </button>
         </div>
@@ -658,11 +658,11 @@ function Stat({ label, value, unit, hot }) {
 /* ---------------- PARKING -------------------------------------------------- */
 function ParkingPage({ parking, hist, onSave }) {
   const T = useTheme();
-  const initDeck = parking?.deck || null;
-  const initCustom = !!(initDeck && !DECKS.includes(initDeck));
-  const [deck, setDeck] = useState(initDeck);
-  const [customText, setCustomText] = useState(initCustom ? initDeck : "");
-  const [otherOpen, setOtherOpen] = useState(initCustom);
+  // Start with nothing selected — saving parking always records a NEW spot, so
+  // pre-highlighting the last deck made it look like you were editing that entry.
+  const [deck, setDeck] = useState(null);
+  const [customText, setCustomText] = useState("");
+  const [otherOpen, setOtherOpen] = useState(false);
   const [detail, setDetail] = useState("");
   const otherRef = useRef(null);
 
@@ -678,6 +678,9 @@ function ParkingPage({ parking, hist, onSave }) {
     onSave({ deck, note: detail.trim(), ts: Date.now() });
     setDetail("");
   };
+
+  // Show where the car is now (if known) at the top of the list, then history.
+  const recent = parking ? [parking, ...hist] : hist;
 
   return (
     <div style={{ display: "grid", gap: 16 }}>
@@ -725,16 +728,24 @@ function ParkingPage({ parking, hist, onSave }) {
         </button>
       </Panel>
 
-      {hist.length > 0 && (
+      {recent.length > 0 && (
         <Panel style={{ padding: 0, overflow: "hidden" }}>
           <div style={{ padding: "14px 16px 8px" }}><Label>Recent spots</Label></div>
-          {hist.map((h, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", borderTop: i === 0 ? "none" : `1px solid ${T.line}` }}>
-              <span style={{ fontSize: 21, fontWeight: 800, color: T.lcd, fontFamily: lcdFont, minWidth: 46 }}>{h.deck}</span>
-              <div style={{ flex: 1, fontSize: 14.5, fontWeight: 600, color: T.muted }}>{h.note || "—"}</div>
-              <span style={{ fontSize: 13, fontWeight: 600, color: T.mutedDim }}>{timeAgo(h.ts)}</span>
-            </div>
-          ))}
+          {recent.map((h, i) => {
+            const isCurrent = !!parking && i === 0;
+            return (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", borderTop: i === 0 ? "none" : `1px solid ${T.line}` }}>
+                <span style={{ fontSize: 21, fontWeight: 800, color: T.lcd, fontFamily: lcdFont, minWidth: 46 }}>{h.deck}</span>
+                <div style={{ flex: 1, fontSize: 14.5, fontWeight: 600, color: T.muted }}>{h.note || "—"}</div>
+                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  {isCurrent && (
+                    <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 0.6, color: T.lcd, background: T.deckOnBg, padding: "3px 7px", borderRadius: 6 }}>NOW</span>
+                  )}
+                  <span style={{ fontSize: 13, fontWeight: 600, color: T.mutedDim }}>{timeAgo(h.ts)}</span>
+                </span>
+              </div>
+            );
+          })}
         </Panel>
       )}
     </div>
