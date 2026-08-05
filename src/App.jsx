@@ -122,8 +122,9 @@ const Label = ({ children, color }) => {
 };
 
 /* ---------------- add / edit fuel form ------------------------------------- */
-function FuelForm({ initial, entries, onSave, onCancel }) {
+function FuelForm({ initial, entries, onSave, onCancel, onDelete }) {
   const T = useTheme();
+  const [confirmDel, setConfirmDel] = useState(false);
   const [date, setDate] = useState(initial?.date || new Date().toISOString().slice(0, 10));
   const [litres, setLitres] = useState(initial ? String(initial.litres) : "");
   const [reading, setReading] = useState(initial ? String(initial.reading) : "");
@@ -243,6 +244,24 @@ function FuelForm({ initial, entries, onSave, onCancel }) {
         }}>
         {initial ? "Update fill-up" : "Save fill-up"}
       </button>
+
+      {initial && onDelete && (
+        <div style={{ marginTop: 12, borderTop: `1px solid ${T.line}`, paddingTop: 14 }}>
+          {!confirmDel ? (
+            <button onClick={() => setConfirmDel(true)}
+              style={{ width: "100%", padding: 13, borderRadius: 12, border: `1.5px solid ${T.line}`, background: "none", color: T.red, fontSize: 15, fontWeight: 700, fontFamily: uiFont, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <Trash2 size={18} /> Delete this fill-up
+            </button>
+          ) : (
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setConfirmDel(false)}
+                style={{ flex: 1, padding: 13, borderRadius: 12, border: `1.5px solid ${T.line}`, background: "none", color: T.muted, fontSize: 15, fontWeight: 700, fontFamily: uiFont }}>Keep it</button>
+              <button onClick={() => onDelete(initial.id)}
+                style={{ flex: 1, padding: 13, borderRadius: 12, border: "none", background: T.red, color: "#fff", fontSize: 15, fontWeight: 800, fontFamily: uiFont }}>Delete</button>
+            </div>
+          )}
+        </div>
+      )}
     </Panel>
   );
 }
@@ -342,7 +361,7 @@ export default function App() {
     showToast(msg);
     scrollWindowTop();
   };
-  const delFuel = (id) => setFuel((p) => p.filter((e) => e.id !== id));
+  const delFuel = (id) => { setFuel((p) => p.filter((e) => e.id !== id)); showToast("Fill-up deleted"); };
 
   // ---- data export / import (protects his 10-year history) ------------------
   const exportData = () => {
@@ -591,7 +610,8 @@ function FuelPage({ computed, stats, editing, setEditing, entries, saveFuel, del
   return (
     <div style={{ display: "grid", gap: 16 }}>
       {editing ? (
-        <FuelForm key={editing} initial={editEntry || null} entries={entries} onSave={saveFuel} onCancel={() => setEditing(null)} />
+        <FuelForm key={editing} initial={editEntry || null} entries={entries} onSave={saveFuel} onCancel={() => setEditing(null)}
+          onDelete={(id) => { delFuel(id); setEditing(null); scrollWindowTop(); }} />
       ) : (
         <button onClick={() => setEditing("new")}
           style={{ padding: "17px", borderRadius: 16, border: "none", background: `linear-gradient(135deg, ${T.violetDeep}, ${T.violet})`, color: "#fff", fontSize: 17, fontWeight: 800, fontFamily: uiFont, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
@@ -632,14 +652,14 @@ function FuelPage({ computed, stats, editing, setEditing, entries, saveFuel, del
         <Panel style={{ padding: 0, overflow: "hidden" }}>
           <div style={{ padding: "14px 16px 8px" }}><Label>History</Label></div>
           {rows.map((e, i) => (
-            <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "13px 16px", borderTop: i === 0 ? "none" : `1px solid ${T.line}` }}>
+            <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "13px 16px", borderTop: i === 0 ? "none" : `1px solid ${T.line}` }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 15.5, color: T.amber, fontWeight: 800 }}>{historyDate(e.date)}</div>
                 {/* Inputs (litres, trip-meter reading) with the derived distance folded
                     in beside the odometer — violet marks the calculated value. Stays
                     on one line at typical phone widths; the distance wraps below only
                     on very narrow screens rather than colliding with the km/L. */}
-                <div style={{ fontSize: 12.5, fontWeight: 600, color: T.muted, fontFamily: lcdFont, marginTop: 3 }}>
+                <div style={{ fontSize: 13.5, fontWeight: 600, color: T.muted, fontFamily: lcdFont, marginTop: 3 }}>
                   {f1(e.litres)} L <span style={{ color: T.mutedDim }}>·</span> {e.reading}{" "}
                   <span style={{ whiteSpace: "nowrap" }}>{e.partial
                     ? <span style={{ color: T.mutedDim }}>(partial)</span>
@@ -651,8 +671,7 @@ function FuelPage({ computed, stats, editing, setEditing, entries, saveFuel, del
               <div style={{ fontFamily: lcdFont, fontSize: 23, fontWeight: 700, color: e.kmpl ? T.amberHot : T.mutedDim, minWidth: 58, textAlign: "right", lineHeight: 1 }}>
                 {e.kmpl ? f1(e.kmpl) : "—"}{e.kmpl && <span style={{ fontSize: 12, fontWeight: 700, color: T.muted }}> km/L</span>}
               </div>
-              <button onClick={() => setEditing(e.id)} style={{ background: "none", border: "none", color: T.muted, padding: 4 }}><Pencil size={18} /></button>
-              <button onClick={() => delFuel(e.id)} style={{ background: "none", border: "none", color: T.muted, padding: 4 }}><Trash2 size={18} /></button>
+              <button onClick={() => setEditing(e.id)} aria-label="Edit" style={{ background: "none", border: "none", color: T.muted, padding: 6 }}><Pencil size={18} /></button>
             </div>
           ))}
         </Panel>
