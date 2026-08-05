@@ -360,13 +360,19 @@ export default function App() {
       showToast("That file didn't look right");
       return;
     }
+    const histArr = Array.isArray(obj.hist) ? obj.hist : [];
     setFuel(obj.fuel);
     setParking(obj.parking ?? null);
-    setHist(Array.isArray(obj.hist) ? obj.hist : []);
+    setHist(histArr);
     if (obj.settings && obj.settings.theme) setSettings(obj.settings);
     setShowSettings(false);
     setTab("home");
-    showToast(`Restored ${obj.fuel.length} fill-ups`);
+    const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
+    const spots = (obj.parking ? 1 : 0) + histArr.length;
+    showToast(
+      `Restored ${plural(obj.fuel.length, "fill-up")}` +
+      (spots ? ` · ${plural(spots, "parking spot")}` : "")
+    );
   };
 
   const greeting = (() => {
