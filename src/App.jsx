@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Fuel, MapPin, TrendingUp, Plus, Trash2, X, Settings, Check, Pencil,
-  Sun, Moon, Monitor, ChevronLeft, ChevronRight, Download, Upload,
+  Sun, Moon, Monitor, ChevronLeft, ChevronRight, ChevronDown, Download, Upload,
 } from "lucide-react";
 
 import { makeTheme, ThemeCtx, useTheme, lcdFont, uiFont, DECKS } from "./lib/theme.js";
@@ -177,7 +177,13 @@ function FuelForm({ initial, entries, onSave, onCancel }) {
       <div style={{ display: "grid", gap: 14 }}>
         <div>
           <Label>Date</Label>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ ...field, marginTop: 7 }} />
+          <div style={{ position: "relative", marginTop: 7 }}>
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ ...field, paddingRight: 44 }} />
+            {/* Our own chevron — the native one (Android Chrome especially) can't
+                be repositioned, so we hide it in CSS and draw this instead. */}
+            <ChevronDown size={20} color={T.muted} strokeWidth={2.4}
+              style={{ position: "absolute", right: 15, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+          </div>
         </div>
         <div>
           <Label>Litres pumped</Label>

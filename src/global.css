@@ -28,13 +28,26 @@ button {
   font-family: inherit;
 }
 
-/* The native date input's calendar / dropdown (▾) indicator sits flush against
-   the right edge on some engines (notably Android Chrome) regardless of the
-   input's padding. Give the indicator its own margin so it always has breathing
-   room from the edge. */
+/* Date field: Android Chrome draws its own native dropdown arrow flush to the
+   right edge that padding / ::-webkit-calendar-picker-indicator can't move. So
+   strip the native appearance and render our own chevron (see FuelForm) for a
+   consistent, well-spaced look across Chrome, Firefox and iOS. The native
+   picker indicator is made invisible but stretched over the whole field, so a
+   tap/click anywhere still opens the date picker. */
+input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+}
 input[type="date"]::-webkit-calendar-picker-indicator {
-  margin-left: 10px;
-  margin-right: 10px;
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
 }
 
 /* Honour the notch / home-indicator safe areas on installed iOS PWAs. */
