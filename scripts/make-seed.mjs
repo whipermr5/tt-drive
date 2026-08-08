@@ -12,6 +12,7 @@
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { compute } from "../src/lib/compute.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const RAW = join(root, "private", "pa-log.txt");
@@ -54,19 +55,9 @@ const payload = {
 
 writeFileSync(OUT, JSON.stringify(payload, null, 2) + "\n");
 
-// Quick sanity read-out so you can eyeball the numbers before sending it over.
-let anchor = null, litres = 0, broken = false, prev = null;
-const kmpls = [];
-for (const e of fuel) {
-  const isFull = e.full !== false;
-  if (prev != null && e.reading < prev) broken = true;
-  litres += e.litres;
-  if (isFull) {
-    if (anchor != null && !broken && e.reading > anchor && litres > 0) kmpls.push((e.reading - anchor) / litres);
-    anchor = e.reading; litres = 0; broken = false;
-  }
-  prev = e.reading;
-}
+// Quick sanity read-out (via the app's own compute) so you can eyeball the
+// numbers before sending it over.
+const kmpls = compute(fuel).filter((r) => r.kmpl != null).map((r) => r.kmpl);
 const avg = kmpls.reduce((a, b) => a + b, 0) / kmpls.length;
 console.log(`Wrote ${OUT}`);
 console.log(`  ${fuel.length} fill-ups · avg ${avg.toFixed(1)} km/L · best ${Math.max(...kmpls).toFixed(1)} · worst ${Math.min(...kmpls).toFixed(1)}`);

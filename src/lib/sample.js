@@ -6,7 +6,7 @@
    *today* so the dashboard always looks current, and from a fixed seed so the
    numbers are stable. Realistic for this app's scale: ~38 L full fills, km/L in
    the ~8–9.5 band, a couple of partial top-ups, and one trip-meter rollover
-   near 10,000 km (which reads as a baseline).
+   near 10,000 km (whose distance is unwrapped across the wrap).
 --------------------------------------------------------------------------- */
 
 const DAY = 86400000;
@@ -46,7 +46,7 @@ export function buildSample() {
     const dist = Math.round(litres * kmpl);
 
     reading += dist;
-    if (reading > 9999) reading -= 10000; // rollover -> baseline
+    if (reading > 9999) reading -= 10000; // wraps 9999 -> 0
     reading = Math.round(reading);
 
     const e = { id: "s" + (i + 1), createdAt: i + 1, date, litres, reading };

@@ -30,10 +30,13 @@ Requires Node 18+.
 
 ## How the numbers work (full-to-full method)
 
-- The number you type is the **trip odometer** — it counts up and rolls over near
-  10,000 km back to 0. When the reading drops (rollover or a manual reset), that
-  fill becomes a *baseline*: no distance is claimed, and the next fill measures
-  from it.
+- The number you type is the **trip odometer** — it counts up and rolls over from
+  9999 back to 0. When the reading drops from near the top of the range, the app
+  assumes it wrapped and **unwraps the distance across the rollover** (adds the
+  10,000 km lap), so that fill still counts. A drop from a mid-range value is
+  treated as a manual meter reset instead — that fill becomes a *baseline* (no
+  distance claimed) and the next fill measures from it. The very first fill is
+  always a baseline.
 - Efficiency is only computed at **full** tanks. Between two full tanks the fuel
   burned is every litre added in between (any partial top-ups + the closing fill),
   and km/L = distance since the last full tank ÷ that total. Partial fills carry

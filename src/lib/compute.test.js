@@ -33,18 +33,29 @@ describe("compute() — baselines", () => {
     expect(rows[0].full).toBe(true);
   });
 
-  it("a trip-meter rollover (reading drops) starts a new baseline, no negative distance", () => {
+  it("a trip-meter rollover is unwrapped past 10,000, not baselined", () => {
     const rows = compute([
       e("2018-05-13", 36, 9573),
       e("2018-05-21", 38.3, 9904), // measured from 9573
-      e("2018-05-28", 39, 205), // rollover near 10,000 -> baseline
+      e("2018-05-28", 39, 205), // wraps 9999 -> 0; distance unwrapped
       e("2018-06-04", 39.9, 543), // measured from 205
     ]);
     expect(rows[1].kmpl).toBeCloseTo((9904 - 9573) / 38.3, 5);
-    expect(rows[2].kmpl).toBeNull(); // the rollover fill
-    expect(rows[2].distance).toBeNull();
-    expect(rows[3].distance).toBe(543 - 205);
+    expect(rows[2].distance).toBe(205 + 10000 - 9904); // = 301
+    expect(rows[2].kmpl).toBeCloseTo((205 + 10000 - 9904) / 39, 5);
+    expect(rows[3].distance).toBe(543 - 205); // = 338
     expect(rows.every((r) => r.distance == null || r.distance >= 0)).toBe(true);
+  });
+
+  it("a partial that crosses the wrap folds into the next full's distance", () => {
+    const first = e("2020-01-01", 40, 9500); // baseline (first full)
+    const part = e("2020-01-08", 22, 100, { partial: true }); // wrapped partial
+    const close = e("2020-01-16", 38, 400); // full: distance across the wrap
+    const rows = compute([first, part, close]);
+    expect(find(rows, part).kmpl).toBeNull();
+    const closing = find(rows, close);
+    expect(closing.distance).toBe(400 + 10000 - 9500); // = 900
+    expect(closing.kmpl).toBeCloseTo(900 / (22 + 38), 5);
   });
 });
 
@@ -82,8 +93,6 @@ describe("compute() — sort stability", () => {
     ]);
     // Order must follow createdAt: [0, 900, 300], NOT reading-sorted [0,300,900].
     expect(rows.map((r) => r.reading)).toEqual([0, 900, 300]);
-    // Because 900 comes before 300, the last entry is a reading drop -> baseline.
-    expect(rows[2].kmpl).toBeNull();
   });
 });
 
